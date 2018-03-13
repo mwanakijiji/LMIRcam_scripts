@@ -41,8 +41,8 @@ def makeOffsets(RA,Dec,sep,PA):
     secDecOff = -1*sep*np.cos(PA*np.pi/180.)#arcseconds
     secRAOff = -1*sep*np.sin(PA*np.pi/180.)#arcseconds NO cos(dec)!!!
 
-    skyDecOff = 2*secDecOff
-    skyRAOff = 2*secRAOff
+    skyDecOff = -1*secDecOff
+    skyRAOff = -1*secRAOff
 
     priDecOff = 0
     priRAOff = 0
@@ -69,42 +69,78 @@ def nod_sneakSomeDarks(RAOff,DecOff,darkIntParams,side):
     pi.setINDI("LMIRCAM.Command.text","go",timeout=300,wait=True)
     pi.setINDI("Lmir.lmir_FW2.command", int(fw2_pos), timeout=20, wait=True)
 
-def do_exposures_1ramp(Lintparams):
-    pi.setINDI("LMIRCAM.Command.text", "0 contacq", wait=True)
-    pi.setINDI("LMIRCAM.Command.text", "1 savedata", wait=True)
-    pi.setINDI("LMIRCAM.Command.text", "%f 1 1 lbtintpar" % Lintparams[0], wait=True)
-    for ii in xrange(Lintparams[1]*Lintparams[2]):
-        pi.setINDI("LMIRCAM.Command.text","go",timeout=300,wait=True)
+#Modify the below to work with sketchy lmircam readouts...
+#def do_exposures(Lintparams,Nintparams,flag, side):
+#    pi.setINDI("NOMIC.Command.text", "0 contacq", wait=True)
+#    pi.setINDI("NOMIC.Command.text", "1 savedata", wait=True)
+#    pi.setINDI("NOMIC.Command.text", "%f %i %i lbtintpar" % Nintparams, wait=True)
+#
+#    pi.setINDI("LMIRCAM.Command.text", "0 contacq", wait=True)
+#    pi.setINDI("LMIRCAM.Command.text", "1 savedata", wait=True)
+#    pi.setINDI("LMIRCAM.Command.text", "%f %i %i lbtintpar" % Lintparams, wait=True)
+#
+#    bxcur, bycur, bxreq, byreq = get_baysidestage_positions(side)
+#    print 'bayside stage positions, xcur, ycur, xreq, yreq:'
+#    print bxcur, bycur, bxreq, byreq
+#    pi.setINDI("LMIRCAM.EditFITS.Keyword=FLAG;Value=%s ;Comment=ALES observation type"%flag, wait=False)
+#    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYXCUR;Value=%f ;Comment=ALES current baysidex position"%bxcur,wait=True)
+#    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYXREQ;Value=%f ;Comment=ALES requested baysidex position"%bxreq,wait=True)
+#    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYYCUR;Value=%f ;Comment=ALES current baysidex position"%bycur,wait=True)
+#    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYYREQ;Value=%f ;Comment=ALES requested baysidex position"%byreq,wait=True)
+#    pi.setINDI("NOMIC.EditFITS.Keyword=FLAG;Value=%s ;Comment=ALES observation type"%flag, wait=True)
+#    pi.setINDI("NOMIC.EditFITS.Keyword=BAYXCUR;Value=%f ;Comment=ALES current baysidex position"%bxcur,wait=True)
+#    pi.setINDI("NOMIC.EditFITS.Keyword=BAYXREQ;Value=%f ;Comment=ALES requested baysidex position"%bxreq,wait=True)
+#    pi.setINDI("NOMIC.EditFITS.Keyword=BAYYCUR;Value=%f ;Comment=ALES current baysidex position"%bycur,wait=True)
+#    pi.setINDI("NOMIC.EditFITS.Keyword=BAYYREQ;Value=%f ;Comment=ALES requested baysidex position"%byreq,wait=True)
+#
+#    pi.setINDI("NOMIC.Command.text","go",timeout=300,wait=False)
+#    pi.setINDI("LMIRCAM.Command.text","go",timeout=300,wait=True)
 
-def do_exposures_coadds_1ramp(Lintparams):
-    pi.setINDI("LMIRCAM.Command.text", "0 contacq", wait=True)
-    pi.setINDI("LMIRCAM.Command.text", "1 savedata", wait=True)
-    pi.setINDI("LMIRCAM.Command.text", "%f %i 1 lbtintpar" % Lintparams[0:2], wait=True)
-    for ii in xrange(Lintparams[2]):
-        pi.setINDI("LMIRCAM.Command.text","go",timeout=300,wait=True)
-
-
-def do_exposures(Lintparams,Nintparams,flag, side):
-    pi.setINDI("NOMIC.Command.text", "0 contacq", wait=True)
-    pi.setINDI("NOMIC.Command.text", "1 savedata", wait=True)
-    pi.setINDI("NOMIC.Command.text", "%f %i %i lbtintpar" % Nintparams, wait=True)
-
-    pi.setINDI("LMIRCAM.Command.text", "0 contacq", wait=True)
-    pi.setINDI("LMIRCAM.Command.text", "1 savedata", wait=True)
-    pi.setINDI("LMIRCAM.Command.text", "%f %i %i lbtintpar" % Lintparams, wait=True)
-
+def do_exposures(Lintparams,Nintparams,flag, side, inner_loop_max=10):
+    #set keywords for ALES pipeline
     bxcur, bycur, bxreq, byreq = get_baysidestage_positions(side)
     print 'bayside stage positions, xcur, ycur, xreq, yreq:'
     print bxcur, bycur, bxreq, byreq
-    pi.setINDI("LMIRCAM.EditFITS.Keyword=FLAG;Value=%s ;Comment=observation type"%flag, wait=False)
-    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYXCUR;Value=%f ;Comment=current baysidex position"%bxcur,wait=True)
-    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYXREQ;Value=%f ;Comment=requested baysidex position"%bxreq,wait=True)
-    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYYCUR;Value=%f ;Comment=current baysidex position"%bycur,wait=True)
-    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYYREQ;Value=%f ;Comment=requested baysidex position"%byreq,wait=True)
-    pi.setINDI("NOMIC.EditFITS.Keyword=FLAG;Value=%s ;Comment=observation type"%flag, wait=True)
+    pi.setINDI("LMIRCAM.EditFITS.Keyword=FLAG;Value=%s ;Comment=ALES observation type"%flag, wait=False)
+    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYXCUR;Value=%f ;Comment=ALES current baysidex position"%bxcur,wait=True)
+    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYXREQ;Value=%f ;Comment=ALES requested baysidex position"%bxreq,wait=True)
+    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYYCUR;Value=%f ;Comment=ALES current baysidex position"%bycur,wait=True)
+    pi.setINDI("LMIRCAM.EditFITS.Keyword=BAYYREQ;Value=%f ;Comment=ALES requested baysidex position"%byreq,wait=True)
+    pi.setINDI("NOMIC.EditFITS.Keyword=FLAG;Value=%s ;Comment=ALES observation type"%flag, wait=True)
+    pi.setINDI("NOMIC.EditFITS.Keyword=BAYXCUR;Value=%f ;Comment=ALES current baysidex position"%bxcur,wait=True)
+    pi.setINDI("NOMIC.EditFITS.Keyword=BAYXREQ;Value=%f ;Comment=ALES requested baysidex position"%bxreq,wait=True)
+    pi.setINDI("NOMIC.EditFITS.Keyword=BAYYCUR;Value=%f ;Comment=ALES current baysidex position"%bycur,wait=True)
+    pi.setINDI("NOMIC.EditFITS.Keyword=BAYYREQ;Value=%f ;Comment=ALES requested baysidex position"%byreq,wait=True)
 
+    #get NOMIC going
+    pi.setINDI("NOMIC.Command.text", "0 contacq", wait=True)
+    pi.setINDI("NOMIC.Command.text", "1 savedata", wait=True)
+    pi.setINDI("NOMIC.Command.text", "%f %i %i lbtintpar" % Nintparams, wait=True)
     pi.setINDI("NOMIC.Command.text","go",timeout=300,wait=False)
-    pi.setINDI("LMIRCAM.Command.text","go",timeout=300,wait=True)
+
+    #Get lmircam going, fuss to avoid bad rows with too many nseqs...
+    dit, coadds, nseqs = Lintparams
+    coadds = int(coadds)
+    nseqs = int(nseqs)
+    inner_loop_max = int(inner_loop_max)
+    N_outer_loops = nseqs / inner_loop_max
+    remainder = nseqs % inner_loop_max
+    if N_outer_loops == 0:
+        lbtintparams = (dit, coadds, nseqs)
+    else:
+        lbtintparams = (dit, coadds, inner_loop_max)
+
+    pi.setINDI("LMIRCAM.Command.text", "0 contacq", wait=True)
+    pi.setINDI("LMIRCAM.Command.text", "1 savedata", wait=True)
+    pi.setINDI("LMIRCAM.Command.text", "%f %i %i lbtintpar" % lbtintparams, wait=True)
+    #first loop
+    pi.setINDI("LMIRCAM.Command.text","go",timeout=(8*dit*coadds*inner_loop_max),wait=True)
+    #other loops
+    for ii in xrange(max(0,N_outer_loops-1)):
+        pi.setINDI("LMIRCAM.Command.text","go",timeout=(8*dit*coadds*inner_loop_max),wait=True)
+    if remainder > 0:
+        pi.setINDI("LMIRCAM.Command.text", "%f %i %i lbtintpar" % (dit, coadds, remainder), wait=True)
+        pi.setINDI("LMIRCAM.Command.text","go",timeout=(8*dit*coadds*nseqs),wait=True) 
 
 def get_baysidestage_positions(side):
     sidestrs = {'left':('sx','L'),'right':('dx','R')}[side]
