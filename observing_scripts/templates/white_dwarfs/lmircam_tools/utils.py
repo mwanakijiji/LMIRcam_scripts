@@ -1,8 +1,8 @@
 from lmircam_tools import *
 
-def rawbg():
-    pi.setINDI("LMIRCAM.Command.text","rawbg")
-
+#def rawbg():
+#    pi.setINDI("LMIRCAM.Command.text","rawbg")
+ 
 def setFLAG(string):
     pi.setINDI("LMIRCAM.EditFITS.Keyword=FLAG;Value=%s;Comment=Script Note"%string, wait=False)
 
