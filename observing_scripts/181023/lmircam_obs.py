@@ -8,9 +8,9 @@ from lmircam_tools.print_tools import info, request
 # USER DEFINED PARAMETERS                       #
 #################################################
 #camera
-dit = 800              #  What integration time (millisec), will be set by server to closest possible integration time of the camera, which depends on setup.
+dit = 60000              #  What integration time (millisec), will be set by server to closest possible integration time of the camera, which depends on setup.
 coadds = 1             #  this should probably be 1
-nseqs = 200             #  How many frames per nod?  Make it at least 2!
+nseqs = 10             #  How many frames per nod?  Make it at least 2!
 use_bg = 1             #  1 True, 0 False.  Use a previously taken background.
 savedata = True       #  Wanna save data?
 
@@ -20,7 +20,7 @@ nod_x = 0              #  Nod throw in arcseconds in detector coords. If positiv
 nod_y = 5              #  Nod throw in arcseconds in detector coords. If positive and inverse = False, the first nod will go up.
 side = 'both'          #  Which side to nod.  Can be 'left', 'right', or 'both'.
 
-N_cycles = 10          #  How many nodding cycles should be executed by this script with a single execution?
+N_cycles = 4          #  How many nodding cycles should be executed by this script with a single execution?
 
 nod_names = ('NOD_A','NOD_B')    #  How would you like the two nod positions to be flagged in the fits headers?
 
