@@ -5,7 +5,7 @@ import os
 #    pi.setINDI("LMIRCAM.Command.text","rawbg")
  
 def setFLAG(string):
-    pi.setINDI("LMIRCAM_save.EditFITS.Keyword=FLAG;Value=%s;Comment=Script Note"%string, wait=False)
+    pi.setINDI("lmircam_save.EditFITS.Keyword=FLAG;Value=%s;Comment=Script Note"%string, wait=False)
 
 def wait4AORunning(side):
     pistr={ 'left':["LBTO.Dictionary.Name=L_AOStatus;Value="],
