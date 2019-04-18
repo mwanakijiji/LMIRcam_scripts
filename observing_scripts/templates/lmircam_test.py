@@ -1,19 +1,30 @@
-import time;
+from lmircam_tools import pi
+from lmircam_tools.exposures import get_lmircam_frames
+from lmircam_tools.utils import nod, setFLAG
+from lmircam_tools.print_tools import info, request
 
-from pyindi import * 
-pi = PyINDI(verbose=False)
 
-#pi.setINDI("LMIRCAM.enable_save.value=On")    # Turn save on. Works.
-#pi.setINDI("LMIRCAM.enable_save.value=On")    # Turn save on again, does it make problems if it is on already? No.
-#pi.setINDI("LMIRCAM.enable_save.value=Off")   # Turn save off. Works.
-#pi.setINDI("LMIRCAM.enable_save.value=Off")   # Turn save off again, does it make problems if it is on already? No.
+#################################################
+# USER DEFINED PARAMETERS                       #
+#################################################
+#camera
+dit = 700              #  What integration time (millisec), will be set by server to closest possible integration time of the camera, which depends on setup.
+coadds = 1             #  this should probably be 1
+nseqs = 1              #  How many frames per nod?
+use_bg = 0             #  1 True, 0 False.  Use a previously taken background.
+savedata = False       #  Wanna save data?
 
-# change to slow mode for long exposures
-# pi.setINDI("LMIRCAM.enable_fast_mode.value=Off", timeout=30);
-pi.setINDI("LMIRCAM.acquire.int_time=0;num_coadds=1;num_seqs=1;enable_bg=0;is_bg=0;is_cont=0")
+nod_names = ('NOD_A','NOD_B')    #  How would you like the two nod positions to be flagged in the fits headers?
 
-#pi.setINDI("LMIRCAM.acquire.int_time=0.0;num_coadds=1;num_seqs=1;enable_bg=0;is_bg=0;is_cont=1")      # Set camera in continuous.  Not working:  Not taking any frames, times out.
+#################################################
+# COMMAND SEQUENCE                              #
+#################################################
 
-#time.sleep(5);	# let it run a short while
+setFLAG(nod_names[0])                                                          #  Set/update the nod position flag in the fits header.
+pi.setINDI("lmircam_display.use_last_as_bg.value=On")
+get_lmircam_frames(dit, coadds, nseqs, use_bg=use_bg, save_data=savedata)      #  
 
-#pi.setINDI("LMIRCAM.stop.value=Off")           #  Stop camera.  Not working:  Stops camera (and returns no error if camera not running), but returns timeout.
+setFLAG(nod_names[1])                                                          #  Set/update the nod position flag in the fits header.
+pi.setINDI("lmircam_display.use_last_as_bg.value=On")
+get_lmircam_frames(dit, coadds, nseqs, use_bg=use_bg, save_data=savedata)      #  
+

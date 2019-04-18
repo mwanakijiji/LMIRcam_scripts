@@ -35,16 +35,17 @@ if reverse:                             #  This inverts the nodding direction if
 #################################################
 # COMMAND SEQUENCE                              #
 #################################################
+pi.setINDI("lmircam_display.use_last_as_bg.value=On")
 for ii in xrange(N_cycles):                                                        #  Execute all nodding cycles.
     setFLAG(nod_names[0])                                                          #  Set/update the nod position flag in the fits header.
     get_lmircam_frames(dit, coadds, nseqs, use_bg=use_bg, save_data=savedata)      #  
-    pi.setINDI("LMIRCAM.use_as_bg.value=On")
+    pi.setINDI("lmircam_display.use_last_as_bg.value=On")
 
     info('nodding')
     nod(nod_x, nod_y, side)                                                        #  Nodding to other position.
     setFLAG(nod_names[1])                                                          #  Set/update the nod position flag in the fits header.
     get_lmircam_frames(dit, coadds, nseqs, use_bg=use_bg, save_data=savedata)      #  
-    pi.setINDI("LMIRCAM.use_as_bg.value=On")
+    pi.setINDI("lmircam_display.use_last_as_bg.value=On")
 
     info('nodding')
     nod(-1*nod_x, -1*nod_y, side)                                                  #  Nodding back to first position.
